@@ -61,6 +61,66 @@ public class CloudSimExample1 {
 	static ParameterGUI p1 = new ParameterGUI();
 	//static int iram=p1.x3;;
 //声明两个界面类的对象，实现方法和变量的调用
+	//*********************************************************************************
+	private static List<Vm> createVM(int userId, int vms) {
+
+		//Creates a container to store VMs. This list is passed to the broker later
+		LinkedList<Vm> list = new LinkedList<Vm>();
+
+		//VM Parameters
+				
+		int mips = p1.x2;
+		// int mips = 1000;
+		// ***********************************************************1
+		long size = 10000; // image size (MB) 10000
+		int ram = 512; // vm memory (MB)512
+		long bw = 1000;
+		int pesNumber = 1; // number of cpus
+		String vmm = "Xen"; // VMM name
+		int vmid = 0;
+		//create VMs
+		Vm[] vm = new Vm[vms];
+
+		for(int i=0;i<vms;i++){
+			vm[i] = new Vm(i, userId, mips, pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared());
+			//for creating a VM with a space shared scheduling policy for cloudlets:
+			//vm[i] = Vm(i, userId, mips, pesNumber, ram, bw, size, priority, vmm, new CloudletSchedulerSpaceShared());
+
+			list.add(vm[i]);
+		}
+
+		return list;
+	}
+
+
+	private static List<Cloudlet> createCloudlet(int userId, int cloudlets){
+		// Creates a container to store Cloudlets
+		LinkedList<Cloudlet> list = new LinkedList<Cloudlet>();
+
+		//cloudlet parameters
+	//	long length = p1.x2;//1000p1.x2;
+		//long[] length = {1000,4256,128550,40056,5154,63510,200000,4454,55555,1205,45773,10120,44303,10777,24556,82550,4356,11154,35104,20888,44444,555,12205,45399,12990,39903,19900,259996,85150,8456,11154,83510,8820,4154,55505,12555,45553,12860,3803,15300};//1000p1.x2;
+		// 声明云任务参数：任务ID、长度、文件大小、输出大小、使用模式。
+					int id = 0;
+					long length = p1.x4;//400000
+					long fileSize = 300;// 300
+					long outputSize = 300;// 300
+					UtilizationModel utilizationModel = new UtilizationModelFull();
+					int pesNumber = 1; // number of cpus
+		
+	
+		Cloudlet[] cloudlet = new Cloudlet[cloudlets];
+		for(int i=0;i<cloudlets;i++){
+			cloudlet[i] = new Cloudlet(i, length, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
+			// setting the owner of these Cloudlets
+			cloudlet[i].setUserId(userId);
+			list.add(cloudlet[i]);
+		}
+
+		return list;
+	}
+
+	//***********************************************************************************
 	public static void main(String[] args) {
 
 		Log.printLine("Starting CloudSimExample1...");
@@ -98,14 +158,14 @@ public class CloudSimExample1 {
 
 			// Fourth step: Create one virtual machine
 			//第四步：创建一台虚拟机
-			vmlist = new ArrayList<Vm>();
+			//vmlist = new ArrayList<Vm>();
 			//首先需要有一个虚拟机队列来存储创建的虚拟机
 
 			// VM description
 			// 对虚拟机进行参数描述，声明，包括虚拟机ID、
 			// MIPS（million instructions per second
 			// 百万条指令/秒，即运算能力）、镜像大小、虚拟机内存大小、带宽、CPU数量、虚拟机名称。
-			int vmid = 0;
+		/*	int vmid = 0;
 			int mips = p1.x1;
 			// int mips = 1000;
 			// ***********************************************************1
@@ -120,31 +180,32 @@ public class CloudSimExample1 {
 
 			// add the VM to the vmList
 			//将创建好的虚拟机添加到虚拟机队列中去
-			vmlist.add(vm);
-
+			vmlist.add(vm);*/
+			vmlist = createVM(brokerId,p1.x1); //creating 20 vms
+			cloudletList = createCloudlet(brokerId,p1.x3); // creating 40 cloudlets
 			// submit vm list to the broker
 			//将虚拟机队列提交给代理
 			broker.submitVmList(vmlist);
 
 			// Fifth step: Create one Cloudlet
 			//第五步：创建一个云任务，过程同上创建虚拟机，先定义一个队列，然后声明参数，创建之后添加到队列中，然后将云任务队列提交给代理
-			cloudletList = new ArrayList<Cloudlet>();
+			//cloudletList = new ArrayList<Cloudlet>();
 
 			// Cloudlet properties
 			// 声明云任务参数：任务ID、长度、文件大小、输出大小、使用模式。
-			int id = 0;
+		/*	int id = 0;
 			long length = p1.x2;//400000
 			long fileSize = 300;// 300
 			long outputSize = 300;// 300
-			UtilizationModel utilizationModel = new UtilizationModelFull();
+			UtilizationModel utilizationModel = new UtilizationModelFull();*/
 // a Cloudlet always utilize all the available CPU capacity.
-			Cloudlet cloudlet = new Cloudlet(id, length, pesNumber, fileSize, outputSize, utilizationModel,
+		/*	Cloudlet cloudlet = new Cloudlet(id, length, pesNumber, fileSize, outputSize, utilizationModel,
 					utilizationModel, utilizationModel);
 			cloudlet.setUserId(brokerId);
 			cloudlet.setVmId(vmid);
 
 			// add the cloudlet to the list
-			cloudletList.add(cloudlet);
+			cloudletList.add(cloudlet);*/
 
 			// submit cloudlet list to the broker
 			broker.submitCloudletList(cloudletList);
